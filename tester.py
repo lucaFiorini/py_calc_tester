@@ -35,7 +35,13 @@ class Tester:
   def get_cell_value(self, position: CellPosition) -> cellValue|None:
     cell = self.get_cell_data(position)
     if cell == None or cell.text == "": return None
-    return cell.text 
+    if cell.has_attr('sdvalue'): 
+      v = str(cell.attrs['sdvalue'])
+    else:
+      v = str(cell.text) 
+    try: return int(v)
+    except: return v
+
   
   def is_value(self, value: cellValue, position: CellPosition) -> bool:
     return self.get_cell_value(position) == value
