@@ -44,19 +44,10 @@ class CalcParser:
     try: return int(v)
     except: return v
 
-  
-  def is_value(self, position: CellPosition, value: cellValue) -> bool:
-    return self.get_cell_value(position) == value
-  
-  def is_formula(self, position: CellPosition) -> bool:
+  def get_bgcolor(self, position: CellPosition) -> str|None:
     cell = self.get_cell_data(position)
-    if cell == None: return False
-    return cell.has_attr('data-sheets-formula')
-  
-  def has_bgcolor(self, position: CellPosition, bgcolor: str) -> bool:
-    cell = self.get_cell_data(position)
-    if cell == None: return False 
-    return cell.has_attr('bgcolor')
+    if cell == None or not cell.has_attr('bgcolor'): return None
+    return str(cell.attrs["bgcolor"])
   
   def get_formula(self, position: CellPosition) -> str|None:
     cell = self.get_cell_data(position)
@@ -66,6 +57,3 @@ class CalcParser:
       return str(cell['data-sheets-formula'])
     else:
       return None
-    
-  def is_same_formula(self, position: CellPosition, formula: str) -> bool:
-    return self.get_formula(position) == formula

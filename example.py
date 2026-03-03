@@ -1,4 +1,6 @@
-from calc_tester import BulkTester, CellPosition, CalcParser
+from calc_parser import CellPosition, CalcParser
+from calc_tester import BulkTester
+
 from bs4 import BeautifulSoup
 
 from testing import Success, TestCase, Fail, Result, TestDefinition
@@ -13,11 +15,11 @@ if __name__ == '__main__':
       tests=[
         TestCase(
           TestDefinition("Funzione",0.5),
-          lambda parser,cell: Success() if parser.is_formula(cell) else Fail("Non è una formula")
+          lambda parser,cell: Success() if parser.get_formula(cell) != None else Fail("Non è una formula")
         ),
         TestCase(
           TestDefinition("Funzione",0.5),
-          lambda parser,cell: Success() if parser.is_formula(cell) else Fail("Non è una formula")
+          lambda parser,cell: Success() if parser.get_formula(cell) != None else Fail("Non è una formula")
         )
       ]
     ).run()
