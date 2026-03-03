@@ -1,5 +1,3 @@
-from typing import Callable, assert_never
-
 from calc_types import CellPosition, cellValue
 from dataclasses import dataclass, field
 from bs4 import BeautifulSoup
@@ -71,30 +69,3 @@ class CalcParser:
     
   def is_same_formula(self, position: CellPosition, formula: str) -> bool:
     return self.get_formula(position) == formula
-
-@dataclass(kw_only=True)
-class BulkTester:
-  parser : CalcParser
-  cells : list[CellPosition]
-  tests : list[
-      TestCase[
-        Callable[[CalcParser,CellPosition],Result]
-      ]
-    ]
-  
-  def run(self) -> list[ExecutedTest]:
-
-    results : list[ExecutedTest] = []
-
-    for test in self.tests:
-      for cell in self.cells:
-        res = test.func(self.parser,cell)
-        match res:
-          case Success(): pass
-          case Fail(_): 
-            results.append(ExecutedTest(test.definition, res))
-            break
-      
-      results.append(ExecutedTest(test.definition, Success()))
-
-    return results
