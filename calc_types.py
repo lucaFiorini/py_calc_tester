@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from pydantic import BaseModel
 from typing import Self
 type coord = tuple[int,int]
 type cellValue = int|str
@@ -15,8 +15,7 @@ def string_to_col_num(s : str) -> int:
   
   return total
 
-@dataclass
-class CellPosition:
+class CellPosition(BaseModel):
   col: str
   row: int 
 

@@ -49,7 +49,7 @@ class CalcParser:
     if cell == None or not cell.has_attr('bgcolor'): return None
     return str(cell.attrs["bgcolor"])
   
-  def get_formula(self, position: CellPosition) -> str|None:
+  def get_cell_formula(self, position: CellPosition) -> str|None:
     cell = self.get_cell_data(position)
     if cell is None: 
       return None
