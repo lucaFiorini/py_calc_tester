@@ -16,9 +16,9 @@ class Fail:
 type Result = Success|Fail
 
 @dataclass
-class TestCase[TestType : Callable[...,Result]]:
+class TestCase[TestFunc : Callable[...,Result]]:
   definition : TestDefinition
-  func : TestType
+  func : TestFunc
 
 @dataclass
 class ExecutedTest:
