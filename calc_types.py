@@ -35,15 +35,10 @@ class CellPosition:
     col_str = ''
     A_val = ord('A')
     while col_num > 0:
-        col_num, remainder = divmod(col_num - 1, 26)
-        col_str = chr(A_val + remainder) + col_str
+      col_num, remainder = divmod(col_num - 1, 26)
+      col_str = chr(A_val + remainder) + col_str
     return CellPosition(col=col_str, row=c[1] + 1)
 
-  @staticmethod
-  def Range_From_String(s: str)-> list[CellPosition]:
-    (a,b) = s.split(':')
-    return(CellPosition.Range(CellPosition.From_String(a), CellPosition.From_String(b)))
-    
   @staticmethod
   def Range(a: CellPosition, b: CellPosition) -> list[CellPosition]:
     a_coord = a.to_coord()
