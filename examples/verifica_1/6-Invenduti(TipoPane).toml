@@ -1,0 +1,29 @@
+# Usage:
+#
+# range = <str>  : [Required] A valid Calc range, e.g. "A1:C3"
+#
+# [[cases]]
+# name = <str>   : [Required] A descriptive name for the test case
+# weight = <int> : [Required] Points assigned to this test case
+#
+# [cases.tests]
+# match_values = [<str|int>, ...]  : [Optional] cells must match these exact values
+# is_formula = <bool>              : [Optional] True if cells must contain formulas
+# is_bold = <bool>                 : [Optional] True if cells must be bold
+# no_formula_drift = <bool>        : [Optional] True if all formulas must be identical across the range
+# has_bgcolor = <bool>             : [Optional] True if cells must have any background color
+# match_bgcolor = "<hex color>"    : [Optional] exact background color required, e.g., "#FFFF00"
+
+# Totale Invenduto (Per tipo di Pane)
+
+range="F18:F21"
+[[cases]]
+name = "Valori"
+weight = 2
+[cases.tests]
+match_values = [360,440,560,100]
+[[cases]]
+weight = 1
+name = "Formula Efficiente"
+is_formula = true
+no_formula_drift = true
