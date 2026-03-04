@@ -79,7 +79,7 @@ class Test(BaseModel):
     
     return super().model_post_init(context)
   
-  def execute(self,parser: CalcParser) -> TestResultList:
+  def execute(self,parser: CalcParser) -> 'TestResultList':
     return TestResultList(test_results = [
         TestResult (
           test_name=test_case.name,
