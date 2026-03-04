@@ -154,7 +154,7 @@ class Test(BaseModel):
           result=TestResult(self.prerequisite.tests.execute(submission, solution, self._cells))
         )
       
-      if prerequisite_result.result:
+      if prerequisite_result.result.value:
         return TestResultList(
           test_results = [prerequisite_result] + assess_all_subcases(lambda case: TestResult(case.tests.execute(submission, solution, self._cells)))
         )
