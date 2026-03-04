@@ -17,16 +17,16 @@ class TestSet(BaseModel):
   match_bgcolor              : str |None            = None
   match_solution_bgcolor     : bool                 = False
 
-  def execute(self, submission_parser : CalcParser, solution_parser: CalcParser, cells : list[CellPosition]):
-    submission_values = [submission_parser.get_cell_value(cell) for cell in cells]
-    solution_values = [solution_parser.get_cell_value(cell) for cell in cells]
-    cell_formulas = [submission_parser.get_cell_formula(cell) for cell in cells]
+  def execute(self, submission : CalcParser, solution: CalcParser, cells : list[CellPosition]):
+    submission_values = [submission.get_cell_value(cell) for cell in cells]
+    solution_values = [solution.get_cell_value(cell) for cell in cells]
+    cell_formulas = [submission.get_cell_formula(cell) for cell in cells]
     
-    submission_bgcolors = [submission_parser.get_bgcolor(cell) for cell in cells]
-    solution_bgcolors = [solution_parser.get_bgcolor(cell) for cell in cells]
+    submission_bgcolors = [submission.get_bgcolor(cell) for cell in cells]
+    solution_bgcolors = [solution.get_bgcolor(cell) for cell in cells]
     
-    raw_submission_cell_data = [submission_parser.get_cell_data(cell) for cell in cells]
-    raw_solution_cell_data = [solution_parser.get_cell_data(cell) for cell in cells]
+    raw_submission_cell_data = [submission.get_cell_data(cell) for cell in cells]
+    raw_solution_cell_data = [solution.get_cell_data(cell) for cell in cells]
 
     assert len(submission_values) == len(cells)
 
@@ -126,12 +126,12 @@ class Test(BaseModel):
     
     return super().model_post_init(context)
   
-  def execute(self,submission_parser: CalcParser, solution_parser : CalcParser) -> 'TestResultList':
+  def execute(self,submission: CalcParser, solution : CalcParser) -> 'TestResultList':
     return TestResultList(test_results = [
         TestResult (
           test_name=test_case.name,
           possible_score=test_case.weight,
-          passed=test_case.tests.execute(submission_parser, solution_parser, self._cells)
+          passed=test_case.tests.execute(submission, solution, self._cells)
         )
         for test_case in self.cases
       ]
