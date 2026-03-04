@@ -26,9 +26,9 @@ class TestSet(BaseModel):
           
       if self.is_formula is not None:
         for formula in cell_formulas:
-          if self.is_formula == (formula is None):
+          if self.is_formula != (formula is not None):
             return False
-          
+        
       if self.no_formula_drift:
         initial_formula = cell_formulas[0]
         for cell_formlua in cell_formulas[1:]:
@@ -37,7 +37,7 @@ class TestSet(BaseModel):
           
       if self.has_bgcolor is not None:
         for color in bgcolors:
-          if self.has_bgcolor == (color is None):
+          if self.has_bgcolor != (color is not None):
             return False
 
       if self.match_bgcolor is not None:
