@@ -34,9 +34,10 @@ try:
 except:
   raise Exception('Errore Interno: File di soluzione NON trovato')
 
-tests = Test.model_validate(toml.loads("""{{TEST.testcode| e('py')}}"""))
+tests = Test.model_validate(toml.loads("""{{TEST.extra| e('py')}}"""))
 
-#debug
+#---DEBUG---
+
 print(tests)
 results = tests.execute(submission_parser,solution_parser)
 
