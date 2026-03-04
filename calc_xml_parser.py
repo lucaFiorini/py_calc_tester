@@ -1,4 +1,4 @@
-from calc_types import CellPosition, cellValue
+from .calc_types import CellPosition, cellValue
 from dataclasses import dataclass, field
 from bs4 import BeautifulSoup
 from bs4.element import Tag

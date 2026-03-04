@@ -1,7 +1,7 @@
 from typing import Any
 
-from calc_types import cellValue,CellPosition
-from calc_xml_parser import CalcParser
+from .calc_types import cellValue,CellPosition
+from .calc_xml_parser import CalcParser
 from pydantic import BaseModel,Field,PrivateAttr
 
 class TestSet(BaseModel):
