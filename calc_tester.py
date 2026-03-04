@@ -46,26 +46,7 @@ class TestSet(BaseModel):
             return False
           
       return True
-  
-class TestResultList(BaseModel):
-  test_results : list[TestResult]
 
-  def get_possible_score(self) -> int:
-    acc = 0
-    for test_result in self.test_results:
-      acc+=test_result.possible_score
-    return acc
-  
-  def get_got_score(self) -> int:
-    acc = 0
-    for test_result in self.test_results:
-      if test_result.passed:
-        acc+=test_result.possible_score
-    return acc
-
-  def get_got_fraction(self) -> float:
-    return self.get_possible_score() / self.get_got_score()
-  
 class TestResult(BaseModel):
   test_name : str
   possible_score : int
@@ -108,3 +89,23 @@ class Test(BaseModel):
         for test_case in self.cases
       ]
     )
+  
+class TestResultList(BaseModel):
+  test_results : list[TestResult]
+
+  def get_possible_score(self) -> int:
+    acc = 0
+    for test_result in self.test_results:
+      acc+=test_result.possible_score
+    return acc
+  
+  def get_got_score(self) -> int:
+    acc = 0
+    for test_result in self.test_results:
+      if test_result.passed:
+        acc+=test_result.possible_score
+    return acc
+
+  def get_got_fraction(self) -> float:
+    return self.get_possible_score() / self.get_got_score()
+  
