@@ -42,7 +42,7 @@ class TestSet(BaseModel):
 
       if self.match_bgcolor is not None:
         for color in bgcolors:
-          if color == self.match_bgcolor:
+          if color != self.match_bgcolor:
             return False
           
       return True
