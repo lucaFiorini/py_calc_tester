@@ -40,7 +40,9 @@ class CalcParser:
     else:
       v = str(cell.text) 
     try: return int(v)
-    except: return v
+    except:
+      try: return float(v) 
+      except: return v
 
   def get_bgcolor(self, position: CellPosition) -> str|None:
     cell = self.get_cell_data(position)

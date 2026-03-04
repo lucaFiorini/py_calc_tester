@@ -1,7 +1,7 @@
 from __future__ import annotations
 from pydantic import BaseModel
 type coord = tuple[int,int]
-type cellValue = int|str
+type cellValue = int|float|str
 
 def string_to_col_num(s : str) -> int:
   c_offset = 0
