@@ -49,8 +49,9 @@ tests = Test.model_validate(toml.loads("""{{TEST.extra| e('py')}}"""))
 res = {}
 
 res['got'] = ""
-res['got'] += f"Range del test: {tests.range}\n"
-res['got'] += f"\n"
+if tests.show_range:
+  res['got'] += f"Range del test: {tests.range}\n"
+  res['got'] += f"\n"
 
 results = tests.execute(submission_parser,solution_parser)
 for i,result in enumerate(results.test_results):

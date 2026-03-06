@@ -119,6 +119,8 @@ class Case(BaseModel):
 
 class Test(BaseModel):
   range         : str
+  show_range    : bool = False
+  
   prerequisite  : Case|None     = None
   cases         : list[Case]    = Field(default_factory=lambda: list())
 
