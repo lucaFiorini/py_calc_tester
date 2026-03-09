@@ -5,7 +5,7 @@ import calc_tester
 #from py_calc_tester.calc_tester import Test,TestResult
 #from py_calc_tester.calc_xml_parser import CalcParser
 
-from calc_tester import Test,TestResult,TestCase,TestSet
+from calc_tester import Test,TestResult,TestCase,TestSet,TestSetTemplate
 from calc_xml_parser import CalcParser
 
 
@@ -14,7 +14,9 @@ from bs4 import BeautifulSoup
 # Register Common testcases
 calc_tester.TestSetRegistry.register(
   key="FREE LUNCH!",
-  tests=TestSet()
+  test=TestSetTemplate(
+    tests=TestSet()
+  )
 )
 
 ATTACHMENTS = '{{ATTACHMENTS}}'.split(',')

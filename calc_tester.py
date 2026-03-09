@@ -119,38 +119,49 @@ class TestCase(BaseModel):
 def format_key(key : str) -> str:
   return key.replace('-',' ').replace('_',' ').capitalize()
 
-class TestSetRegistry(BaseModel):
-  _REGISTRY : ClassVar[dict[str,TestSet]] = {}
+class TestSetRegistry:
+  _REGISTRY : ClassVar[dict[str,TestSetTemplate]] = {}
   
+  @staticmethod
+  def register(key : str, test : TestSetTemplate) -> None:
+    if key in TestSetRegistry._REGISTRY:
+      raise ValueError('Test already registered')
+    TestSetRegistry._REGISTRY[key] = test
+
+class TestSetTemplate(BaseModel):
+  default_name : str|None = None
+  tests : TestSet
+
+  
+class RegisteredTestSetReference(BaseModel):
   key     : str       = Field(alias="from_preset")
-  name    : str       = Field(default_factory=lambda x: format_key(x['key']))
   weight  : int       = 1
   
   def model_post_init(self, context: Any) -> None:
-    if self.key not in self._REGISTRY:
-      raise ValueError('Key not located in the registry')
+    if self.key not in TestSetRegistry._REGISTRY:
+      raise ValueError('Key not located in the registry')      
     return super().model_post_init(context)
   
+  def get_name(self) -> str:
+    default_name = TestSetRegistry._REGISTRY[self.key].default_name
+    if default_name is None:
+      return format_key(self.key)
+    else:
+      return default_name
+    
   def get_test_case(self) -> TestCase:
     return TestCase(
-      name=self.name,
+      name=self.get_name(),
       weight=self.weight,
-      tests=self._REGISTRY[self.key]
+      tests=TestSetRegistry._REGISTRY[self.key].tests
     )
-  
-  @staticmethod
-  def register(key : str, tests : TestSet) -> None:
-    if key in TestSetRegistry._REGISTRY:
-      raise ValueError('Test already registered')
-    TestSetRegistry._REGISTRY[key] = tests
 
-  
-TESTCASE_MAYBE_REF_VALIDATOR : TypeAdapter[TestCase|TestSetRegistry] = TypeAdapter(TestCase|TestSetRegistry)
+TESTCASE_MAYBE_REF_VALIDATOR : TypeAdapter[TestCase|RegisteredTestSetReference] = TypeAdapter(TestCase|RegisteredTestSetReference)
 def validate_testcsae_maybe_ref(val : dict[str,Any]) -> TestCase:
   parsed_val = TESTCASE_MAYBE_REF_VALIDATOR.validate_python(val)
   match parsed_val:
     case TestCase(): return parsed_val
-    case TestSetRegistry(): return parsed_val.get_test_case()
+    case RegisteredTestSetReference(): return parsed_val.get_test_case()
     case _: assert_never(parsed_val)
 
 TestCaseOrRef = Annotated[TestCase, BeforeValidator(validate_testcsae_maybe_ref)]
