@@ -123,10 +123,10 @@ class TestSetRegistry:
   _REGISTRY : ClassVar[dict[str,TestSetTemplate]] = {}
   
   @staticmethod
-  def register(key : str, test : TestSetTemplate) -> None:
+  def register(key : str, template : TestSetTemplate) -> None:
     if key in TestSetRegistry._REGISTRY:
       raise ValueError('Test already registered')
-    TestSetRegistry._REGISTRY[key] = test
+    TestSetRegistry._REGISTRY[key] = template
 
 class TestSetTemplate(BaseModel):
   default_name : str|None = None
