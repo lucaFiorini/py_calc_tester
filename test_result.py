@@ -1,9 +1,8 @@
 from abc import ABC
 
 class _TestResult(ABC,float):
-  def __float__(self):
-    return float(self)
-  
+  pass
+
 class Failure(_TestResult):
   def __new__(cls):
     return super().__new__(cls,False)
