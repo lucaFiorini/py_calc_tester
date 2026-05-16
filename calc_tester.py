@@ -1,4 +1,4 @@
-import test_result
+from . import test_result
 
 from dataclasses import dataclass
 from typing import Annotated, Any, Callable, ClassVar, assert_never
