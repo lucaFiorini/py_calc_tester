@@ -2,15 +2,13 @@ from . import test_result
 
 from dataclasses import dataclass
 from typing import Annotated, Any, Callable, ClassVar, assert_never
-from .test_result import TestResult,ValidTestResult
+from .test_result import TestResult,ValidTestResult,Success,Failure,Invalidated,Partial
 from .calc_types import cellValue,CellPosition
 from .calc_xml_parser import CalcParser
 from pydantic import BaseModel,Field,PrivateAttr, BeforeValidator, TypeAdapter
 from bs4 import Tag
 
-class TestSet(BaseModel):  
-  from .test_result import Success,Failure,Invalidated,Partial
-  
+class TestSet(BaseModel):   
   match_values               : list[cellValue]|None = None
   match_solution_values      : bool                 = False
   allow_partial_match        : bool                 = False
@@ -60,7 +58,7 @@ class TestSet(BaseModel):
     
   def handle_match_values(self,cell_values : list[cellValue|None]) -> ValidTestResult:
     if self.match_values is None:
-      return self.Success()
+      return Success()
     if self.allow_partial_match:
       return test_result.from_matchable_lists(cell_values,self.match_values)
     else:
@@ -68,7 +66,7 @@ class TestSet(BaseModel):
     
   def handle_match_solution_values(self,submission_values : list[cellValue|None], solution_cells : list[cellValue|None]) -> ValidTestResult:
     if self.match_solution_values is None:
-      return self.Success()
+      return Success()
     if self.allow_partial_match:
       return test_result.from_matchable_lists(solution_cells,submission_values)
     else:
