@@ -9,7 +9,7 @@ from pydantic import BaseModel,Field,PrivateAttr, BeforeValidator, TypeAdapter
 from bs4 import Tag
 
 class TestSet(BaseModel):  
-  from test_result import Success,Failure,Invalidated,Partial
+  from .test_result import Success,Failure,Invalidated,Partial
   
   match_values               : list[cellValue]|None = None
   match_solution_values      : bool                 = False
