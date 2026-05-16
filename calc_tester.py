@@ -249,12 +249,14 @@ class TestResultList:
       acc+=test_result.possible_score
     return acc
   
-  def get_got_score(self) -> int:
+  def get_got_score(self) -> float:
     acc = 0
-    for test_result in self.test_results:
-      if test_result.status:
-        acc+=test_result.possible_score
-    return acc
+    return sum(
+      map(
+          lambda v: v.status,
+          self.test_results
+        )
+      )
 
   def get_got_fraction(self) -> float:
     return self.get_got_score() / self.get_possible_score()

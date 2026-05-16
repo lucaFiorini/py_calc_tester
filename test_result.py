@@ -1,19 +1,14 @@
 from abc import ABC
 
-class Invalidated: 
-  def __bool__(self):
-    return False
-  pass
-
 class _TestResult(ABC,float):
   def __float__(self):
     return float(self)
   
-class Failure(_TestResult,float):
+class Failure(_TestResult):
   def __new__(cls):
     return super().__new__(cls,False)
 
-class Partial(_TestResult,float):
+class Partial(_TestResult):
   def __new__(cls,val : float):
     if not (val > 0 and val < 1):
       raise ValueError("A Partial may only have a value between 1 and 0")
@@ -21,8 +16,13 @@ class Partial(_TestResult,float):
 
 class Success(_TestResult):
   def __new__(cls):
-    return super().__new__(cls,1)
-  
+    return super().__new__(cls,True)
+
+class Invalidated(_TestResult):
+  def __new__(cls):
+    return super().__new__(cls,False)
+  pass
+
 type ValidTestResult = Success|Partial|Failure
 type _IntoValidTestResult = float|ValidTestResult
 type TestResult = Invalidated|ValidTestResult
