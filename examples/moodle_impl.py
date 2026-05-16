@@ -5,7 +5,8 @@ import json
 #from py_calc_tester.calc_tester import Test,TestResult
 #from py_calc_tester.calc_xml_parser import CalcParser
 
-from calc_tester import Test,TestResult,TestCase,TestSet,TestSetTemplate,TestSetRegistry
+from calc_tester import Test,TestSetTemplate,TestSetRegistry
+from test_result import Success,Failure,Partial,Invalidated
 from calc_xml_parser import CalcParser
 
 from typing import Any
@@ -72,10 +73,11 @@ for test in tests:
   case_results = test.execute(submission_parser,solution_parser)
   for i,result in enumerate(case_results.test_results):
 
-    match result.result:
-      case TestResult.Passed: marker = '✅'
-      case TestResult.Failed: marker = '❌'
-      case TestResult.Invalidated: marker = '🚫'
+    match result.status:
+      case Success(): marker = '✅'
+      case Partial(): marker = '🟡'
+      case Failure(): marker = '❌'
+      case Invalidated(): marker = '🚫'
 
     res['out'] += f"{marker} {result.possible_score}pt\t \t{result.test_name}\n"
 

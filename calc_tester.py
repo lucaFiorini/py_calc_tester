@@ -1,15 +1,19 @@
+import test_result
+
 from dataclasses import dataclass
 from typing import Annotated, Any, Callable, ClassVar, assert_never
-
+from test_result import TestResult,ValidTestResult
 from .calc_types import cellValue,CellPosition
 from .calc_xml_parser import CalcParser
 from pydantic import BaseModel,Field,PrivateAttr, BeforeValidator, TypeAdapter
 from bs4 import Tag
-from enum import Enum
 
-class TestSet(BaseModel):
+class TestSet(BaseModel):  
+  from test_result import Success,Failure,Invalidated,Partial
+  
   match_values               : list[cellValue]|None = None
   match_solution_values      : bool                 = False
+  allow_partial_match        : bool                 = False
 
   is_formula                 : bool|None            = None
   no_formula_drift           : bool                 = False
@@ -20,7 +24,14 @@ class TestSet(BaseModel):
   match_bgcolor              : str |None            = None
   match_solution_bgcolor     : bool                 = False
 
-  def execute(self, submission : CalcParser, solution: CalcParser, cells : list[CellPosition]):
+  def execute(
+    self,
+    submission : CalcParser,
+    solution: CalcParser,
+    cells : list[CellPosition]
+  ) -> ValidTestResult:
+     
+    #First, load all relevant table information from the submission and the solution
     submission_values = [submission.get_cell_value(cell) for cell in cells]
     solution_values = [solution.get_cell_value(cell) for cell in cells]
     cell_formulas = [submission.get_cell_formula(cell) for cell in cells]
@@ -32,29 +43,36 @@ class TestSet(BaseModel):
     raw_solution_cell_data = [solution.get_cell_data(cell) for cell in cells]
 
     assert len(submission_values) == len(cells)
+    
+    return test_result.combine_min(
+        self.handle_match_values(submission_values),
+        self.handle_match_solution_values(submission_values,solution_values),
 
-    return (
-      self.handle_match_values(submission_values) and 
-      self.handle_match_solution_values(submission_values,solution_values) and
+        self.handle_is_formula(cell_formulas),
+        self.handle_no_formula_drift(cell_formulas),
 
-      self.handle_is_formula(cell_formulas) and 
-      self.handle_no_formula_drift(cell_formulas) and
+        self.handle_is_bold(raw_submission_cell_data),
 
-      self.handle_is_bold(raw_submission_cell_data) and
-
-      self.handle_has_bgcolor(submission_bgcolors) and
-      self.handle_match_bgcolor(submission_bgcolors) and
-      self.handle_match_solution_bgcolor(submission_bgcolors,solution_bgcolors)
-    )
-  
-  def handle_match_values(self,cell_values : list[cellValue|None]) -> bool:
-    if self.match_values is not None:
-      return cell_values == self.match_values
-    return True
-  def handle_match_solution_values(self,submission_values : list[cellValue|None], solution_cells : list[cellValue|None]) -> bool:
-    if self.match_solution_values:
-      return submission_values == solution_cells
-    return True
+        self.handle_has_bgcolor(submission_bgcolors),
+        self.handle_match_bgcolor(submission_bgcolors),
+        self.handle_match_solution_bgcolor(submission_bgcolors,solution_bgcolors)
+      )
+    
+  def handle_match_values(self,cell_values : list[cellValue|None]) -> ValidTestResult:
+    if self.match_values is None:
+      return self.Success()
+    if self.allow_partial_match:
+      return test_result.from_matchable_lists(cell_values,self.match_values)
+    else:
+      return test_result.from_bool(cell_values == self.match_values)
+    
+  def handle_match_solution_values(self,submission_values : list[cellValue|None], solution_cells : list[cellValue|None]) -> ValidTestResult:
+    if self.match_solution_values is None:
+      return self.Success()
+    if self.allow_partial_match:
+      return test_result.from_matchable_lists(solution_cells,submission_values)
+    else:
+      return test_result.from_bool(solution_cells == submission_values)
 
   def handle_is_formula(self,cell_formulas : list[str|None]) -> bool:
     if self.is_formula is not None:
@@ -98,16 +116,11 @@ class TestSet(BaseModel):
       return submission_bgcolors == solution_bgcolors
     return True
 
-class TestResult(Enum): 
-  Invalidated = None
-  Failed = False 
-  Passed = True
-
 @dataclass
 class TestResultInfo:
   test_name : str
   possible_score : int
-  result : TestResult
+  status : TestResult
 
   def __post_init__(self) -> None:
     assert self.possible_score != 0
@@ -194,7 +207,7 @@ class Test(BaseModel):
         TestResultInfo (
           test_name=test_case.name,
           possible_score=test_case.weight,
-          result=case_result(test_case)
+          status=case_result(test_case)
         )
         for test_case in self.cases
       ]
@@ -204,26 +217,26 @@ class Test(BaseModel):
       prerequisite_result = TestResultInfo (
           test_name=f"(Prerequisito) {self.prerequisite.name}",
           possible_score=self.prerequisite.weight,
-          result=TestResult(self.prerequisite.tests.execute(submission, solution, self._cells))
+          status=self.prerequisite.tests.execute(submission, solution, self._cells)
         )
-      
-      if prerequisite_result.result.value:
+      if prerequisite_result.status:
         return TestResultList(
           test_results = (
             [prerequisite_result] + 
-            assess_all_subcases(lambda case: TestResult(case.tests.execute(submission, solution, self._cells)))
+            assess_all_subcases(lambda case: case.tests.execute(submission, solution, self._cells))
           )
         )
       else:
         return TestResultList(
           test_results = (
             [prerequisite_result] +
-            assess_all_subcases(lambda _: TestResult.Invalidated)
+            assess_all_subcases(lambda _: test_result.Invalidated())
           )
         )
       
     return TestResultList(
-      test_results = assess_all_subcases(lambda case: TestResult(case.tests.execute(submission, solution, self._cells))))
+      test_results = assess_all_subcases(lambda case: case.tests.execute(submission, solution, self._cells))
+    )
   
 
 @dataclass
@@ -239,7 +252,7 @@ class TestResultList:
   def get_got_score(self) -> int:
     acc = 0
     for test_result in self.test_results:
-      if test_result.result.value:
+      if test_result.status:
         acc+=test_result.possible_score
     return acc
 
