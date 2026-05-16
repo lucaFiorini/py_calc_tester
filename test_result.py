@@ -30,6 +30,12 @@ type TestResult = Invalidated|ValidTestResult
 def from_bool(b: bool):
   return Success() if b else Failure()
 
+def from_float(val: float) -> ValidTestResult:
+  match val:
+    case 1:return Success()
+    case 0:return Failure()
+    case val: return Partial(val)
+
 def from_ratio(successes: int|float,possibilities: int):
   if successes == possibilities: return Success()
   elif successes == 0: return Failure()
@@ -50,5 +56,4 @@ def average(r1:_IntoValidTestResult, *results : _IntoValidTestResult) -> ValidTe
   
 def combine_min(r1:_IntoValidTestResult, *results: _IntoValidTestResult) -> ValidTestResult:
   res = [r1,*results]
-  min_res = min(res)
-  return from_ratio(min_res,len(res))
+  return from_float(min(res))
