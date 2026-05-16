@@ -2,7 +2,7 @@ from . import test_result
 
 from dataclasses import dataclass
 from typing import Annotated, Any, Callable, ClassVar, assert_never
-from test_result import TestResult,ValidTestResult
+from .test_result import TestResult,ValidTestResult
 from .calc_types import cellValue,CellPosition
 from .calc_xml_parser import CalcParser
 from pydantic import BaseModel,Field,PrivateAttr, BeforeValidator, TypeAdapter
