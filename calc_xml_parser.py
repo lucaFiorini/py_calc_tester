@@ -57,9 +57,3 @@ class CalcParser:
       return str(cell['data-sheets-formula'])
     else:
       return None
-    
-  def is_bold(self,position: CellPosition) -> bool:
-    cell = self.get_cell_data(position)
-    if cell is None:
-      return False
-    return cell.find('b') is not None
