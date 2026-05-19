@@ -22,6 +22,8 @@ class TestSet(BaseModel):
   match_bgcolor              : str |None            = None
   match_solution_bgcolor     : bool                 = False
 
+  match_prefix               : str|None             = None
+  
   def execute(
     self,
     submission : CalcParser,
@@ -71,7 +73,23 @@ class TestSet(BaseModel):
       return test_result.from_matchable_lists(solution_cells,submission_values)
     else:
       return test_result.from_bool(solution_cells == submission_values)
-
+  def handle_match_prefix(self, submission_data: list[Tag|None]) -> TestResult:
+    if self.match_prefix is None: 
+      return Success()
+    if self.allow_partial_match:
+      num_matches = 0
+      for cell in submission_data:
+        if cell is not None and cell.getText().startswith(self.match_prefix):
+          num_matches+=1
+      return test_result.from_ratio(
+        num_matches,
+        len(submission_data)
+      )
+    for cell in submission_data:
+      if cell is None or not cell.getText().startswith(self.match_prefix):
+        return Failure()  
+    return Success()
+  
   def handle_is_formula(self,cell_formulas : list[str|None]) -> bool:
     if self.is_formula is not None:
       for formula in cell_formulas:
@@ -248,7 +266,6 @@ class TestResultList:
     return acc
   
   def get_got_score(self) -> float:
-    acc = 0
     return sum(
       map(
           lambda v: v.status,
